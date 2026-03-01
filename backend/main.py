@@ -1,33 +1,14 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 
-users = []
+# Monta a pasta frontend para servir arquivos estáticos
+app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
 
-class User(BaseModel):
-    email: str
-    password: str
-
-
-@app.post("/register")
-def register(user: User):
-
-    for u in users:
-        if u.email == user.email:
-            return "Usuário já existe"
-
-    users.append(user)
-
-    return "Usuário cadastrado com sucesso"
-
-
-@app.post("/login")
-def login(user: User):
-
-    for u in users:
-
-        if u.email == user.email and u.password == user.password:
-            return "Login realizado com sucesso"
-
-    return "Credenciais inválidas"
+# Rota principal
+@app.get("/", response_class=HTMLResponse)
+def read_root():
+    with open("frontend/Login.html") as f:
+        return f.read()
